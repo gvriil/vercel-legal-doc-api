@@ -30,7 +30,7 @@ async def generate_doc(request: DocRequest):
     """
     
     response = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
+        model="claude-3-5-sonnet-latest",
         max_tokens=3000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -39,7 +39,7 @@ async def generate_doc(request: DocRequest):
     
     # AGENT 2: COMPLIANCE CHECK (simple)
     compliance_prompt = f"Review this {request.doc_type} for {request.jurisdiction}: {doc[:2000]}. Score 0-100 compliance."
-    comp_response = client.messages.create(model="claude-3-5-sonnet-20241022", max_tokens=200, messages=[{"role": "user", "content": compliance_prompt}])
+    comp_response = client.messages.create(model="claude-3-5-sonnet-latest", max_tokens=200, messages=[{"role": "user", "content": compliance_prompt}])
     score = int(comp_response.content[0].text.split()[-1])
     
     return {
