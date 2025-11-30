@@ -55,26 +55,26 @@ async def metrics():
 
 @app.post("/pay")
 async def create_payment():
-try:
-import stripe
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-    if not stripe.api_key:
-        return {"error": "STRIPE_SECRET_KEY missing"}
-    
-    payment = stripe.PaymentIntent.create(
-        amount=1000,  # $10.00
-        currency="usd",
-        metadata={
-            "doc_type": "NDA", 
-            "jurisdiction": "US-CA"
-        }
-    )
-    
-    return {"client_secret": payment.client_secret, "status": "ready"}
-except Exception as e:
-    return {"error": str(e), "status": "failed"}
+    try:
+        import stripe
+        stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+        
+        if not stripe.api_key:
+            return {"error": "STRIPE_SECRET_KEY missing"}
+        
+        payment = stripe.PaymentIntent.create(
+            amount=1000,  # $10.00
+            currency="usd",
+            metadata={
+                "doc_type": "NDA", 
+                "jurisdiction": "US-CA"
+            }
+        )
+        
+        return {"client_secret": payment.client_secret, "status": "ready"}
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
 
-return {"client_secret": payment.client_secret}
 
 if __name__ == "__main__":
     import uvicorn
