@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import anthropic
 import os
@@ -15,7 +16,7 @@ class DocRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"status": "AI Legal Doc API Live ✅", "docs": "/docs"}
+    return FileResponse("index.html")
 
 @app.post("/generate")
 async def generate_doc(request: DocRequest):
@@ -24,19 +25,19 @@ async def generate_doc(request: DocRequest):
     Jurisdiction: {request.jurisdiction}
     Doc type: {request.doc_type}
     User data: {request.data}
-    
+
     Generate professional {request.doc_type} document. Include jurisdiction-specific clauses.
     Format as Markdown with clear sections.
     """
-    
+
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-3-5-sonnet-20240620",
         max_tokens=3000,
         messages=[{"role": "user", "content": prompt}]
     )
-    
+
     doc = response.content[0].text
-    
+
     # AGENT 2: COMPLIANCE CHECK (simple)
     # FIXED: Static compliance score
     score = 92
@@ -58,19 +59,19 @@ async def create_payment():
     try:
         import stripe
         stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-        
+
         if not stripe.api_key:
             return {"error": "STRIPE_SECRET_KEY missing"}
-        
+
         payment = stripe.PaymentIntent.create(
             amount=1000,  # $10.00
             currency="usd",
             metadata={
-                "doc_type": "NDA", 
+                "doc_type": "NDA",
                 "jurisdiction": "US-CA"
             }
         )
-        
+
         return {"client_secret": payment.client_secret, "status": "ready"}
     except Exception as e:
         return {"error": str(e), "status": "failed"}
