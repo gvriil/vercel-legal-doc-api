@@ -53,6 +53,20 @@ async def generate_doc(request: DocRequest):
 async def metrics():
     return {"requests": 42, "revenue": 420, "compliance_avg": 92}
 
+@app.post("/pay")
+async def create_payment():
+import stripe
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+text
+payment = stripe.PaymentIntent.create(
+    amount=1000,  # $10
+    currency="usd",
+    metadata={"doc_type": "NDA", "jurisdiction": "US-CA"}
+)
+
+return {"client_secret": payment.client_secret}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
